@@ -19,22 +19,31 @@ Online-Partyspiel im Stil von „Among Us“ für Familie und Freunde, direkt im
 
 Wer kurz die Verbindung verliert (z. B. Handy gesperrt), kommt im selben Tab automatisch zurück ins laufende Spiel.
 
+## Passwort
+
+Das Spiel ist nur mit einem gemeinsamen Passwort erreichbar. Es steht in der Umgebungsvariable `ZUGANG_PASSWORT`. Wer es einmal eingibt, bekommt ein Cookie und bleibt ein Jahr angemeldet. Nach 10 falschen Versuchen ist eine IP-Adresse 15 Minuten gesperrt.
+
+- **Lokal ohne Passwort** startet das Spiel offen (mit Warnung im Log).
+- **Auf Render ohne Passwort** bleibt die Seite gesperrt, bis `ZUGANG_PASSWORT` gesetzt ist.
+- Neues Passwort setzen meldet alle ab, sie müssen es dann neu eingeben.
+
 ## Lokal starten
 
 ```bash
 npm install
-npm start
+ZUGANG_PASSWORT=geheim npm start   # oder ohne Passwort: npm start
 ```
 
 Dann http://localhost:10000 öffnen. Für Mitspieler im selben WLAN die IP-Adresse des Rechners verwenden, z. B. `http://192.168.0.20:10000`.
 
 ## Deployment (z. B. Render)
 
-Das `Dockerfile` startet den Server auf `$PORT`. Es wird keine Datenbank gebraucht: Räume liegen nur im Arbeitsspeicher und sind nach einem Neustart weg.
+Das `Dockerfile` startet den Server auf `$PORT`. Bei Render unter **Environment** die Variable `ZUGANG_PASSWORT` eintragen. Es wird keine Datenbank gebraucht: Räume liegen nur im Arbeitsspeicher und sind nach einem Neustart weg.
 
 ## Aufbau
 
 - `spiel.js`: Spiellogik auf dem Server (Räume, Karte, Rollen, Aufgaben, Töten, Schächte, Sabotage, Abstimmung, Bots), WebSocket unter `/ws`
 - `server.js`: liefert die Seite aus und leitet `/ws` an das Spiel weiter
+- `zugang.js`: Passwortseite, Zugangs-Cookie und Sperre bei zu vielen Fehlversuchen
 - `public/index.html`: der komplette Client (Canvas-Grafik, Minispiele, Lobby, Besprechung)
 - `public/vendor/`: Schrift Barlow Semi Condensed (SIL Open Font License, siehe `OFL-Barlow.txt`)

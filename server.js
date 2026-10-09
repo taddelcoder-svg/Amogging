@@ -1,9 +1,11 @@
 'use strict';
 // Verräter an Bord – kleiner Server: liefert die Seite aus und führt das Spiel über WebSocket (/ws).
+// Zugang nur mit dem gemeinsamen Passwort aus ZUGANG_PASSWORT (siehe zugang.js).
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const spiel = require('./spiel')();
+const zugang = require('./zugang')({ titel:'Verräter an Bord' });
+const spiel = require('./spiel')({ hatZugang:zugang.hatZugang });
 
 const PORT = Number(process.env.PORT) || 10000;
 const OEFFENTLICH = path.join(__dirname, 'public');
@@ -12,8 +14,10 @@ const DATEIEN = new Set(['index.html', 'vendor/barlow-semi-condensed-600.woff2',
 
 const server = http.createServer((req, res) => {
   const pfad = new URL(req.url, 'http://x').pathname;
-  if (req.method !== 'GET' && req.method !== 'HEAD'){ res.writeHead(405); return res.end(); }
   if (pfad === '/healthz'){ res.writeHead(200, { 'Content-Type':'application/json' }); return res.end('{"ok":true}'); }
+  // Ohne Passwort-Cookie gibt es nur die Passwortseite
+  if (zugang.pruefen(req, res)) return;
+  if (req.method !== 'GET' && req.method !== 'HEAD'){ res.writeHead(405); return res.end(); }
   const datei = pfad === '/' ? 'index.html' : pfad.slice(1);
   if (!DATEIEN.has(datei)){ res.writeHead(404, { 'Content-Type':'text/plain; charset=utf-8' }); return res.end('Nicht gefunden'); }
   res.writeHead(200, {
