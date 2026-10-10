@@ -14,6 +14,10 @@ const DATEIEN = new Set(['index.html', 'vendor/barlow-semi-condensed-600.woff2',
 
 const server = http.createServer((req, res) => {
   const pfad = new URL(req.url, 'http://x').pathname;
+  if (pfad === '/datenschutz' || pfad === '/datenschutz.html'){
+    res.writeHead(200, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-cache' });
+    return fs.createReadStream(path.join(__dirname, 'datenschutz.html')).pipe(res);
+  }
   if (pfad === '/healthz'){ res.writeHead(200, { 'Content-Type':'application/json' }); return res.end('{"ok":true}'); }
   // Ohne Passwort-Cookie gibt es nur die Passwortseite
   if (zugang.pruefen(req, res)) return;

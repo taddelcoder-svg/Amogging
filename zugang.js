@@ -2,7 +2,7 @@
 // Zugangsschutz: ein gemeinsames Passwort für Familie und Freunde.
 // Das Passwort steht in der Umgebungsvariable ZUGANG_PASSWORT. Wer es einmal
 // eingibt, bekommt ein Cookie (technisch notwendig, daher ohne Einwilligung
-// zulässig) und bleibt ein Jahr angemeldet.
+// zulässig) und bleibt ein Jahr angemeldet. Die Datenschutzseite bleibt offen.
 const crypto = require('crypto');
 
 module.exports = function zugang({ titel, offen = [] }){
@@ -13,7 +13,7 @@ module.exports = function zugang({ titel, offen = [] }){
     : 'ZUGANG_PASSWORT fehlt – lokal ohne Passwortschutz.');
 
   const schluessel = passwort ? crypto.createHash('sha256').update('zugang:' + passwort).digest('hex') : '';
-  const offenePfade = new Set(['/healthz', ...offen]);
+  const offenePfade = new Set(['/datenschutz', '/datenschutz.html', '/healthz', ...offen]);
 
   function cookieWert(req){
     const m = /(?:^|;\s*)zugang=([a-f0-9]{64})/.exec(req.headers.cookie || '');
@@ -55,6 +55,8 @@ module.exports = function zugang({ titel, offen = [] }){
   button{border:0;background:var(--akzent);color:var(--karte);font-weight:700;cursor:pointer}
   .fehler{color:var(--fehler);margin:0 0 12px}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .klein{margin:16px 0 0;font-size:.9rem;text-align:center}
+  a{color:var(--akzent)}
 </style></head><body>
 <form method="post" action="/zugang">
   <input type="hidden" name="ziel" value="${esc(zielOk(ziel))}">
@@ -64,6 +66,7 @@ module.exports = function zugang({ titel, offen = [] }){
   <label for="pw" class="sr">Passwort</label>
   <input id="pw" name="passwort" type="password" autocomplete="current-password" required autofocus>
   <button type="submit">Weiter</button>
+  <p class="klein"><a href="/datenschutz">Datenschutz</a></p>
 </form></body></html>`);
   }
 
