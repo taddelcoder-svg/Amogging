@@ -1214,6 +1214,7 @@ function endeZeigen(m){
   minispielSchliessen(); clearInterval(treffenUhr);
   $('treffenEbene').hidden = true; $('karteGross').hidden = true;
   const gewonnen = (m.sieger === 'verraeter') === (Z.rolle === 'verraeter');
+  window.SLZaehle && SLZaehle('sl_verraeter', s => { s.spiele = (s.spiele || 0) + 1; if (gewonnen) s.siege = (s.siege || 0) + 1; });
   Z.imSpiel = false;
   szene(`<h1 style="color:${gewonnen ? 'var(--gut)' : 'var(--boese)'}">${gewonnen ? 'Sieg' : 'Niederlage'}</h1>
     <p>${m.sieger === 'verraeter' ? 'Die Verräter gewinnen.' : 'Die Crew gewinnt.'} ${esc(m.grund)}</p>
@@ -1557,6 +1558,13 @@ if (merk && (!param || param.toUpperCase() === merk.code)){
 </script>
 
 <!-- Rangliste der Spielesammlung: meldet Spielzeit, Punkte und Progress -->
+<script>
+window.SLZaehle=function(k,f){try{var s=JSON.parse(localStorage.getItem(k))||{};f(s);localStorage.setItem(k,JSON.stringify(s))}catch(e){}};
+window.SLRangAdapter=function(){
+  var s={};try{s=JSON.parse(localStorage.getItem('sl_verraeter'))||{}}catch(e){}
+  return{punkte:(s.siege||0)*100+(s.spiele||0)*10,progress:Math.min(100,(s.siege||0)/10*100)}
+};
+</script>
 <script src="https://rangliste-aoee.onrender.com/melder.js" data-spiel="Verräter an Bord" defer></script>
 </body>
 </html>
